@@ -1,0 +1,1 @@
+De los tres motores de plantillas prefiero el EJS. ya que la sintaxis es muy parecida al HTML y el agregado de linea de scripts es sencilla
