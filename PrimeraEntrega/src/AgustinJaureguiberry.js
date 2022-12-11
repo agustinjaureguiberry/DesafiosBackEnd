@@ -136,12 +136,12 @@ const mensajes = new Mensajes("./db/mensajes.txt", fs)
 
 api.use(express.json())
 api.use(express.urlencoded({ extended: true }))
-api.use(express.static(__dirname + '/views'))
+api.use(express.static('./views'))
 api.use('/', rutaProductos)
 api.engine('hbs', handlebars.engine({
     extname: 'hbs',
     defaultLayout: 'index.hbs',
-    layoutsDir: __dirname + '/views'
+    layoutsDir: './views'
 }))
 
 // Configuracion de servidor
@@ -175,7 +175,7 @@ rutaProductos.delete('/:id', (peticion, respuesta) => {
     respuesta.json(productos.getAll())
 })
 
-api.set('views', __dirname + '/views')
+api.set('views','./views')
 api.set('view engine', 'hbs')
 
 api.get('/', (peticion, respuesta) => {
@@ -185,6 +185,8 @@ api.get('/', (peticion, respuesta) => {
 api.get('/productos', (peticion, respuesta) => {
     respuesta.render('productos')
 })
+
+
 
 
 

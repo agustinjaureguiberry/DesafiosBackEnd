@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "timestamp": 1668647566189,
+        "productos": [{
+        "id": 1,
+        "nombre": "Regla",
+        "descripcion": "Regla",
+        "timestamp": 1668647566189,
+        "codigo": 1232,
+        "precio": 250,
+        "stock": 10,
+        "foto": ""
+        },
+        {
+        "id": 2,
+        "nombre": "Escuadra",
+        "descripcion": "Escuadra",
+        "timestamp": 1668647567292,
+        "codigo": 1233,
+        "precio": 300,
+        "stock": 12,
+        "foto": ""
+        }]
+    }
+]
