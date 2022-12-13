@@ -55,10 +55,9 @@ const renderMsjUnico = (mensaje) => {
 const renderProductoUnico = (producto) => {
     const html = document.createElement('tr')
     html.innerHTML=`<th scope="row">${producto.id}</th>
-        <td>${producto.Title}</td>
-        <td>${producto.Price}</td>
-        <td><img src="${producto.Thumbnail}" alt="Img de producto"></td>`
-    console.log(html)
+        <td>${producto.nombre}</td>
+        <td>${producto.precio}</td>
+        <td><img src="${producto.foto}" alt="Img de producto"></td>`
     document.getElementById('productos').appendChild(html)
 }
 
@@ -95,10 +94,15 @@ const addMensajes = (e) =>{
 }
 
 const addProductos = (e) =>{
+    const timestamp = new Date().getTime()
     const producto = {
-        Title: document.getElementById('Title').value,
-        Price: document.getElementById('price').value,
-        Thumbnail: document.getElementById('Thumbnail').value
+        nombre: document.getElementById('nombre').value,
+        descripcion: document.getElementById('descripcion').value,
+        timestamp,
+        codigo: document.getElementById('codigo').value,
+        precio: document.getElementById('precio').value,
+        stock: document.getElementById('stock').value,
+        foto: document.getElementById('foto').value
     }
     socket.emit('nuevoProducto', producto)
     return false

@@ -76,7 +76,6 @@ api.engine('hbs', handlebars.engine({
 rutaProductos.get('/productos', (peticion, respuesta) => {
     respuesta.render('productos', {titulo: 'Productos', productos: productos.getAll()})
 })
-productos.lenght
 
 rutaProductos.post('/productos',  (peticion, respuesta) => {
     productos.save(peticion.body)
@@ -112,9 +111,11 @@ rutaProductos.delete('/:id', (peticion, respuesta) => {
 
 api.set('views', './views')
 api.set('view engine', 'hbs')
+
 api.get('/', (peticion, respuesta) => {
     respuesta.render('formulario', {titulo: 'Formulario'})
 })
+
 api.get('/productos', (peticion, respuesta) => {
     respuesta.render('productos')
 })

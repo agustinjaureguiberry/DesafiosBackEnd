@@ -5,7 +5,7 @@ const { Server: IOServer } = require('socket.io')
 const {Router} = express
 const handlebars = require('express-handlebars')
 const api = express()
-const port = 8080
+const port = process.env.PORT || 8080
 const fs = require('fs')
 
 class Productos {
@@ -65,14 +65,20 @@ class Productos {
         }
     }
 
-    async DeleteById(id) {
+    async deleteById(id) {
         let array = []
         try {
             array = JSON.parse(await fs.promises.readFile(this.archivo, this.format))
-            let newArray = array.filter((e) => e.id !== id)
-            await fs.promises.writeFile(this.archivo, JSON.stringify(newArray))
+            const prod = array.find((e) => e.id === id)
+            if (prod) {
+                const newArray = array.filter((e) => e.id !== id)
+                await fs.promises.writeFile(this.archivo, JSON.stringify(newArray))
+                return true
+            } else {
+                return false
+            }
         } catch {
-            console.log("Error, no se encontro el producto")
+            console.log("Error inesperado")
         }
     }
 
@@ -83,6 +89,28 @@ class Productos {
         } catch {
             console.log("Error, no se encontro archivo")
         }
+    }
+
+    async replaceById(id, newProd) {
+        let array = []
+        let index = -1
+        try {
+            array = JSON.parse(await fs.promises.readFile(this.archivo, this.format))
+            array.forEach((e,i) => {
+                if (e.id === id) {
+                    index = i
+                }
+            })
+            if (index != -1) {
+                array[index] = {id, ...newProd}
+                await fs.promises.writeFile(this.archivo, JSON.stringify(array))
+                return true
+            } else {
+                return false
+            }
+        } catch {
+            console.log("Error inesperado")
+        }      
     }
 
 }
@@ -151,28 +179,63 @@ const io = new IOServer(httpServer)
 
 // Definicion de Routes
 
-rutaProductos.get('/:id', (peticion, respuesta) => {
+// rutaProductos.get('/productos', (peticion, respuesta) => {
+//     respuesta.render('productos', {titulo: 'Productos', productos: productos.getAll()})
+// })
+
+rutaProductos.post('/api/',  (peticion, respuesta) => {
+    productos.save(peticion.body)
+    respuesta.render('formulario', {titulo: 'Formulario'})
+})
+
+rutaProductos.get('/api/:id?', async (peticion, respuesta) => {
     const id = parseInt(peticion.params.id)
-    const prod = productos.getById(id)
-    if (prod) {
-        respuesta.json(prod)
+    console.log(id)
+    if (id) {
+        const prod = await productos.getById(id)
+        if (prod) {
+            respuesta.json(prod)
+        } else {
+            respuesta.json({error: 'producto no encontrado'})      
+        }
     } else {
-        respuesta.json({error: 'producto no encontrado'})
+        const prod = await productos.getAll()
+        if (prod) {
+            respuesta.json(prod)
+        } else {
+            respuesta.json({error: 'No Hay Productos'})      
+        }
     }
 
-})
+ })
 
-rutaProductos.put('/:id', (peticion, respuesta) => {
+
+rutaProductos.put('/api/:id', async (peticion, respuesta) => {
     const id = parseInt(peticion.params.id)
     const newProd = peticion.body
-    productos.replaceById(id, newProd)
-    respuesta.send(`Producto con id ${id} modificado con exito.`)
-})
+    await productos.replaceById(id, newProd)
+        .then ((data) => {
+            if (data){
+                respuesta.send(`Producto con id ${id} modificado con exito.`)
+            }
+            else {
+                respuesta.send(`Producto no encontrado`)
+            }
+            })
+    })
 
-rutaProductos.delete('/:id', (peticion, respuesta) => {
+
+rutaProductos.delete('/api/:id', async (peticion, respuesta) => {
     const id = parseInt(peticion.params.id)
-    productos.deleteById(id)
-    respuesta.json(productos.getAll())
+    await productos.deleteById(id)
+        .then((data) => {
+            if (data) {
+                respuesta.json(productos.getAll())
+            } else {
+                respuesta.send(`Producto no encontrado`)
+            }
+        })
+
 })
 
 api.set('views','./views')
@@ -185,9 +248,6 @@ api.get('/', (peticion, respuesta) => {
 api.get('/productos', (peticion, respuesta) => {
     respuesta.render('productos')
 })
-
-
-
 
 
 //Levanta servidor
@@ -217,6 +277,6 @@ io.on('connection', async socket => {
         await productos.save(producto)
             .then((id) => {
             io.sockets.emit('nuevoProducto', { id , ...producto })})
-        })
+    })
 })
 
